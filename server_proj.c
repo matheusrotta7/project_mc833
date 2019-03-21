@@ -138,12 +138,27 @@ int main(void)
 				    perror("recv");
 				    exit(1);
 				}
-				if (numbytes == 1) {
+				if (1) {
 					if (buf[0] == '1') {
 						printf("Barney, Panda, Pellegrino, ...\n");
 					}
 					else if (buf[0] == '2') {
-						printf("New user added\n");
+						//***start logic to add new user, ask stuff from client
+						welcome_msg = "Please inform the user's name";
+						len = strlen(welcome_msg);
+						if (send(new_fd, welcome_msg, len, 0) == -1) {
+							perror("send");
+						}
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received '%s'\n",buf);
+
+						printf("New user added: %s\n", buf);
 					}
 					else if (buf[0] == '3') {
 						//end connection
@@ -151,7 +166,7 @@ int main(void)
 					}
 				}
 				else {
-					printf("invalid client input\n");
+					// printf("invalid client input\n");
 				}
 			}
 			buf[numbytes] = '\0';

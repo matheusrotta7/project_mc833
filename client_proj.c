@@ -17,6 +17,7 @@
 #define PORT "3490" // the port client will be connecting to
 
 #define MAXDATASIZE 2000 // max number of bytes we can get at once
+#define MAX_NAME_SIZE 200
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -86,13 +87,54 @@ int main(int argc, char *argv[])
 	buf[numbytes] = '\0';
 
 	printf("client: received '%s'\n",buf);
-	char choice;
-	scanf("%c", &choice);
-	char* response = "-1";
-	response[0] = choice;
-	int len = strlen(response);
-	if (send(sockfd, response, len, 0) == -1) {
-		perror("send");
+	while (1) {
+		char choice;
+		scanf("%c", &choice);
+		char response[1];
+		response[0] = choice;
+		int len = strlen(response);
+		if (send(sockfd, response, len, 0) == -1) {
+			perror("send");
+		}
+		if (choice == '2') {
+			//client decided to add new user
+			//server will ask the new user's name
+			//let's receive the message:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("client: received '%s'\n",buf);
+
+			// char* username = malloc(MAX_NAME_SIZE);
+			char username[MAX_NAME_SIZE];
+			char username_aux[MAX_NAME_SIZE];
+			char next;
+			int first = 1;
+			int i = 0;
+			while ((next = getchar()) != '\n') { //we lose the first char here
+				scanf("%s", username_aux);
+				int j = 0;
+				int cur = i;
+		
+				for (; j < strlen(username_aux); j++, i++) {
+					username[i+1] = username[i]; //shift name to the right
+				}
+				// cur = i;
+				username[cur] = next; //restore char that was used to probe
+			}
+			// gets(username);
+			printf("%s\n", username);
+			len = strlen(username);
+			if (send(sockfd, username, len, 0) == -1) {
+				perror("send");
+			}
+
+		}
+
 	}
 
 	close(sockfd);
