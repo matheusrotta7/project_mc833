@@ -144,11 +144,14 @@ int main(void)
 					}
 					else if (buf[0] == '2') {
 						//***start logic to add new user, ask stuff from client
+						printf("Client chose to add new user\n");
 						welcome_msg = "Please inform the user's name";
 						len = strlen(welcome_msg);
 						if (send(new_fd, welcome_msg, len, 0) == -1) {
 							perror("send");
 						}
+
+						//receive name from client
 						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
 						    perror("recv");
 						    exit(1);

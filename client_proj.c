@@ -17,7 +17,7 @@
 #define PORT "3490" // the port client will be connecting to
 
 #define MAXDATASIZE 2000 // max number of bytes we can get at once
-#define MAX_NAME_SIZE 200
+#define MAX_NAME_SIZE 500
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -109,26 +109,21 @@ int main(int argc, char *argv[])
 
 			printf("client: received '%s'\n",buf);
 
-			// char* username = malloc(MAX_NAME_SIZE);
+			/****get name from stdin****/
 			char username[MAX_NAME_SIZE];
-			char username_aux[MAX_NAME_SIZE];
 			char next;
-			int first = 1;
 			int i = 0;
-			while ((next = getchar()) != '\n') { //we lose the first char here
-				scanf("%s", username_aux);
-				int j = 0;
-				int cur = i;
-		
-				for (; j < strlen(username_aux); j++, i++) {
-					username[i+1] = username[i]; //shift name to the right
-				}
-				// cur = i;
-				username[cur] = next; //restore char that was used to probe
+			scanf("%c", &next); //this one grabs annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') { //we lose the first char here
+				username[i++] = next;
+				scanf("%c", &next);
 			}
-			// gets(username);
-			printf("%s\n", username);
+			username[i] = '\0';
+			/****************************/
+
 			len = strlen(username);
+			//send name to server
 			if (send(sockfd, username, len, 0) == -1) {
 				perror("send");
 			}
