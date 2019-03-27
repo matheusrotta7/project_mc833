@@ -55,6 +55,10 @@ int main(void)
 	char s[INET6_ADDRSTRLEN];
 	int rv;
 
+
+	/*****stuff I added*****/
+	FILE* fp;
+
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -161,6 +165,12 @@ int main(void)
 
 						printf("server: received '%s'\n",buf);
 
+
+						/***file manipulation part***/
+						fp = fopen ("data.txt", "a");
+						fprintf(fp, "Nome: %s\n\n", buf);
+						fclose(fp);
+						
 						printf("New user added: %s\n", buf);
 					}
 					else if (buf[0] == '3') {
