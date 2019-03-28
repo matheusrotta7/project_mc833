@@ -21,6 +21,18 @@
 
 #define MAXDATASIZE 2000 // max number of bytes we can get at once
 
+// typedef struct userinfo {
+//
+// 	char email[200];
+// 	char full_name[300];
+// 	char city[100];
+// 	char major[200];
+// 	char skills[300];
+// 	char skills[10][300];
+// 	int next_exp;
+//
+// } userinfo;
+
 void sigchld_handler(int s)
 {
 	(void)s; // quiet unused variable warning
@@ -149,11 +161,27 @@ int main(void)
 					else if (buf[0] == '2') {
 						//***start logic to add new user, ask stuff from client
 						printf("Client chose to add new user\n");
-						welcome_msg = "Please inform the user's name";
+						welcome_msg = "Please inform the user's info (email, full name, photo (not yet implemented), residence, bachelor's degree, skills and one experience)";
 						len = strlen(welcome_msg);
 						if (send(new_fd, welcome_msg, len, 0) == -1) {
 							perror("send");
 						}
+
+
+						/***file manipulation part***/
+						fp = fopen ("data.txt", "a"); //open file in append mode
+
+
+						//receive email from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received email '%s'\n",buf);
+						fprintf(fp, "Email: %s\n", buf);
 
 						//receive name from client
 						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
@@ -163,15 +191,68 @@ int main(void)
 
 						buf[numbytes] = '\0';
 
-						printf("server: received '%s'\n",buf);
+						printf("server: received name '%s'\n",buf);
+						fprintf(fp, "Nome Completo: %s\n", buf);
+
+						// //receive photo from client
+						// if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						//     perror("recv");
+						//     exit(1);
+						// }
+						//
+						// buf[numbytes] = '\0';
+						//
+						// printf("server: received '%s'\n",buf);
+
+						//receive residence from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received residence'%s'\n",buf);
+						fprintf(fp, "Residência: %s\n", buf);
+
+						//receive major from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received major '%s'\n",buf);
+						fprintf(fp, "Formação Acadêmica: %s\n", buf);
+
+						//receive skills from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received skills '%s'\n",buf);
+						fprintf(fp, "Habilidades: %s\n", buf);
+
+						//receive one experience from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received one experience '%s'\n",buf);
+						fprintf(fp, "Experiência: (1) %s\n\n\n", buf); //adicionar mais via opções do menu
 
 
-						/***file manipulation part***/
-						fp = fopen ("data.txt", "a");
-						fprintf(fp, "Nome: %s\n\n", buf);
+
 						fclose(fp);
-						
-						printf("New user added: %s\n", buf);
+
+						// printf("New user added: %s\n", buf);
 					}
 					else if (buf[0] == '3') {
 						//end connection

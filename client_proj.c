@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 		}
 		if (choice == '2') {
 			//client decided to add new user
-			//server will ask the new user's name
+			//server will ask the new user's info
 			//let's receive the message:
 			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 			    perror("recv");
@@ -109,22 +109,96 @@ int main(int argc, char *argv[])
 
 			printf("client: received '%s'\n",buf);
 
-			/****get name from stdin****/
-			char username[MAX_NAME_SIZE];
+			char buf[MAX_NAME_SIZE];
 			char next;
 			int i = 0;
-			scanf("%c", &next); //this one grabs annoying newline
+			scanf("%c", &next); //this one grabs annoying newline (this only happens here)
+			/****get email from stdin****/
 			scanf("%c", &next); //this gets first char
-			while (next != '\n') { //we lose the first char here
-				username[i++] = next;
+			while (next != '\n') {
+				buf[i++] = next;
 				scanf("%c", &next);
 			}
-			username[i] = '\0';
+			buf[i] = '\0';
 			/****************************/
+			len = strlen(buf);
+			//send email to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
 
-			len = strlen(username);
+			/****get name from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
 			//send name to server
-			if (send(sockfd, username, len, 0) == -1) {
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			/****get residence from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send residence to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			/****get major from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send major to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			/****get skills from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send skills to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			/****get one experience from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send one experience to server
+			if (send(sockfd, buf, len, 0) == -1) {
 				perror("send");
 			}
 
