@@ -156,7 +156,9 @@ int main(void)
 				}
 				if (1) {
 					if (buf[0] == '1') {
-						printf("Barney, Panda, Pellegrino, ...\n");
+						printf("User chose to list all people in a given course");
+						//so we must receive the desired course from the client
+						
 					}
 					else if (buf[0] == '2') {
 						//***start logic to add new user, ask stuff from client

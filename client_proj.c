@@ -203,6 +203,25 @@ int main(int argc, char *argv[])
 			}
 
 		}
+		else if (choice == '1') {
+			//user chose to list all people that majored in a certain course
+			//we need to know the course, mate, let's ask them
+			printf("Enter desired course: \n");
+			/****get desired course from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired course to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+		}
 
 	}
 
