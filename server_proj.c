@@ -375,6 +375,7 @@ int main(void)
 								strcpy(matches[num_of_matches++], skills);
 					        }
 					        if (strcmp(aux, "Residência:") == 0) {
+								correct_residence = 0;
 					            int i = 0;
 					            char next;
 					            fscanf(fp, "%c", &next); ////get preceding blank space
@@ -386,15 +387,11 @@ int main(void)
 								city[i] = '\0';
 					            if (strcmp(city, buf) == 0) {
 									correct_residence = 1;
-									goto skip_reset;
 									// printf("server found name %s in %s course\n", name, course);
 									// strcpy(matches[num_of_matches++], name);
 					            }
 					        }
-							correct_residence = 0;
-							int meaning_of_life = 42;
-							skip_reset:
-							meaning_of_life = 42;
+
 					    }
 
 						char response[1000];
