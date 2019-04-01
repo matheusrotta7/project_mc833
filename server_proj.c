@@ -207,11 +207,34 @@ int main(void)
 					            }
 					        }
 					    }
+
 						char response[1000];
+						int cur;
 						if (num_of_matches == 0) {
-							strcpy(response, "No entries found for %s course", course);
+							sprintf(response, "No entries found for %s course", course);
+						}
+						else {
+							int i;
+							cur = 0;
+							for (i = 0; i < num_of_matches; i++) {
+
+								int string_len = strlen(matches[i]);
+								int j, k;
+								for (j = 0, k = cur; j < string_len; j++, k++) {
+									response[k] = matches[i][j]; //copy first name to response
+								}
+								cur = k;
+								response[cur++] = '\n';
+							}
 						}
 
+						response[cur] = '\0';
+						// printf("%s\n", response);
+						len = strlen(response);
+						//send list of names in response to client
+						if (send(new_fd, response, len, 0) == -1) {
+							perror("send");
+						}
 
 					}
 					else if (buf[0] == '2') {

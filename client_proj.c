@@ -224,6 +224,18 @@ int main(int argc, char *argv[])
 			if (send(sockfd, buf, len, 0) == -1) {
 				perror("send");
 			}
+
+			//now client must receive answer from server:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("\nclient: received the following names:\n");
+			printf("%s\n", buf);
+
 		}
 
 	}
