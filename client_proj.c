@@ -206,9 +206,12 @@ int main(int argc, char *argv[])
 		else if (choice == '1') {
 			//user chose to list all people that majored in a certain course
 			//we need to know the course, mate, let's ask them
+			int i;
+			char next;
 			printf("Enter desired course: \n");
 			/****get desired course from stdin****/
 			i = 0;
+			scanf("%c", &next); //this gets annoying newline
 			scanf("%c", &next); //this gets first char
 			while (next != '\n') {
 				buf[i++] = next;

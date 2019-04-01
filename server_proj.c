@@ -21,6 +21,8 @@
 
 #define MAXDATASIZE 2000 // max number of bytes we can get at once
 
+#define MAX_FILE_SIZE 10000 //max size of data.txt file
+
 // typedef struct userinfo {
 //
 // 	char email[200];
@@ -156,9 +158,61 @@ int main(void)
 				}
 				if (1) {
 					if (buf[0] == '1') {
-						printf("User chose to list all people in a given course");
+						printf("User chose to list all people in a given course\n");
 						//so we must receive the desired course from the client
-						
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received desired course '%s'\n", buf);
+
+						/***search for names that have desired course on file***/
+					    fp = fopen ("data.txt", "r"); //open file in read mode
+
+					    char aux[100];
+						char matches[20][200];
+						int num_of_matches = 0;
+						char name[500];
+						char course[500];
+
+					    while (fscanf(fp, "%s", &aux) != EOF) {
+
+					        if (strcmp(aux, "Completo:") == 0) {
+					            int i = 0;
+					            char next;
+					            fscanf(fp, "%c", &next); //get preceding blank space
+								fscanf(fp, "%c", &next); //this gets first char
+								while (next != '\n') {
+									name[i++] = next;
+									fscanf(fp, "%c", &next);
+								}
+								name[i] = '\0';
+					        }
+					        else if (strcmp(aux, "Acadêmica:") == 0) {
+					            int i = 0;
+					            char next;
+					            fscanf(fp, "%c", &next); ////get preceding blank space
+								fscanf(fp, "%c", &next); //this gets first char
+								while (next != '\n') {
+									course[i++] = next;
+									fscanf(fp, "%c", &next);
+								}
+								course[i] = '\0';
+					            if (strcmp(course, buf) == 0) {
+					                printf("server found name %s in %s course\n", name, course);
+									strcpy(matches[num_of_matches++], name);
+					            }
+					        }
+					    }
+						char response[1000];
+						if (num_of_matches == 0) {
+							strcpy(response, "No entries found for %s course", course);
+						}
+
+
 					}
 					else if (buf[0] == '2') {
 						//***start logic to add new user, ask stuff from client
