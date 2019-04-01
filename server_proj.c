@@ -140,7 +140,7 @@ int main(void)
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s);
 		printf("server: got connection from %s\n", s);
-		char* welcome_msg = "Choose one of the following options: \n1: list all people that have graduated in a certain course\n2: add new profile\n3: end activities\n";
+		char* welcome_msg = "Choose one of the following options: \n1: list all people that have graduated in a certain course\n2: add new profile\n3: end activities\n4:list all skills from people that live in a certain city\n";
 		int len = strlen(welcome_msg);
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
@@ -336,6 +336,94 @@ int main(void)
 					else if (buf[0] == '3') {
 						//end connection
 						break;
+					}
+					else if (buf[0] == '4') {
+						printf("User chose to list all skills from profiles in a certain city\n");
+						//so we must receive the desired city from the client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received desired city '%s'\n", buf);
+
+						/***search for names that have desired course on file***/
+					    fp = fopen ("data.txt", "r"); //open file in read mode
+
+					    char aux[100];
+						char matches[20][200];
+						int num_of_matches = 0;
+						char city[500];
+						char skills[500];
+
+						int correct_residence = 0;
+					    while (fscanf(fp, "%s", &aux) != EOF) {
+
+					        if (correct_residence && strcmp(aux, "Habilidades:") == 0) {
+					            int i = 0;
+					            char next;
+					            fscanf(fp, "%c", &next); //get preceding blank space
+								fscanf(fp, "%c", &next); //this gets first char
+								while (next != '\n') {
+									skills[i++] = next;
+									fscanf(fp, "%c", &next);
+								}
+								skills[i] = '\0';
+								printf("server found skills %s in %s city\n", skills, city);
+								strcpy(matches[num_of_matches++], skills);
+					        }
+					        if (strcmp(aux, "Residência:") == 0) {
+					            int i = 0;
+					            char next;
+					            fscanf(fp, "%c", &next); ////get preceding blank space
+								fscanf(fp, "%c", &next); //this gets first char
+								while (next != '\n') {
+									city[i++] = next;
+									fscanf(fp, "%c", &next);
+								}
+								city[i] = '\0';
+					            if (strcmp(city, buf) == 0) {
+									correct_residence = 1;
+									goto skip_reset;
+									// printf("server found name %s in %s course\n", name, course);
+									// strcpy(matches[num_of_matches++], name);
+					            }
+					        }
+							correct_residence = 0;
+							int meaning_of_life = 42;
+							skip_reset:
+							meaning_of_life = 42;
+					    }
+
+						char response[1000];
+						int cur;
+						if (num_of_matches == 0) {
+							sprintf(response, "No entries found for %s city", city);
+						}
+						else {
+							int i;
+							cur = 0;
+							for (i = 0; i < num_of_matches; i++) {
+
+								int string_len = strlen(matches[i]);
+								int j, k;
+								for (j = 0, k = cur; j < string_len; j++, k++) {
+									response[k] = matches[i][j];
+								}
+								cur = k;
+								response[cur++] = '\n';
+							}
+						}
+
+						response[cur] = '\0';
+						printf("%s\n", response);
+						len = strlen(response);
+						//send list of skills in response to client
+						if (send(new_fd, response, len, 0) == -1) {
+							perror("send");
+						}
 					}
 				}
 				else {

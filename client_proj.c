@@ -237,6 +237,39 @@ int main(int argc, char *argv[])
 			printf("%s\n", buf);
 
 		}
+		else if (choice == '4') {
+			//user chose to list all skills in a certain city
+			//we need to know the city, mate, let's ask them
+			int i;
+			char next;
+			printf("Enter desired city: \n");
+			/****get desired city from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired course to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			//now client must receive answer from server:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("\nclient: received the following skills:\n");
+			printf("%s\n", buf);
+		}
 
 	}
 
