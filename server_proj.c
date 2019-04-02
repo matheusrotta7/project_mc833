@@ -178,7 +178,7 @@ int main(void)
 						char name[500];
 						char course[500];
 
-					    while (fscanf(fp, "%s", &aux) != EOF) {
+					    while (fscanf(fp, "%s", aux) != EOF) {
 
 					        if (strcmp(aux, "Completo:") == 0) {
 					            int i = 0;
@@ -235,6 +235,8 @@ int main(void)
 						if (send(new_fd, response, len, 0) == -1) {
 							perror("send");
 						}
+
+						fclose(fp);
 
 					}
 					else if (buf[0] == '2') {
@@ -359,7 +361,7 @@ int main(void)
 						char skills[500];
 
 						int correct_residence = 0;
-					    while (fscanf(fp, "%s", &aux) != EOF) {
+					    while (fscanf(fp, "%s", aux) != EOF) {
 
 					        if (correct_residence && strcmp(aux, "Habilidades:") == 0) {
 					            int i = 0;
@@ -421,6 +423,8 @@ int main(void)
 						if (send(new_fd, response, len, 0) == -1) {
 							perror("send");
 						}
+
+						fclose(fp);
 					}
 				}
 				else {
