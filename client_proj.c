@@ -311,6 +311,84 @@ int main(int argc, char *argv[])
 
 
         }
+        else if (choice == '6') {
+            //user chose to show user's experience by providing their email
+			//we need to know the email, mate, let's ask them
+			int i;
+			char next;
+			printf("Enter desired email: \n");
+			/****get desired city from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired email to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			//now client must receive answer from server:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("\nclient: received the following experience:\n");
+			printf("%s\n", buf);
+        }
+        else if (choice == '7') {
+            //now client must receive answer from server:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("\nclient: received this info from all profiles:\n");
+			printf("%s\n", buf);
+        }
+        else if (choice == '8') {
+            //user chose to show user's whole info by providing their email
+			//we need to know the email, mate, let's ask them
+			int i;
+			char next;
+			printf("Enter desired email: \n");
+			/****get desired city from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired email to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+			//now client must receive answer from server:
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+			buf[numbytes] = '\0';
+
+			printf("\nclient: received the following info:\n");
+			printf("%s\n", buf);
+        }
 
 	}
 

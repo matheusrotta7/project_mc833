@@ -140,7 +140,7 @@ int main(void)
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s);
 		printf("server: got connection from %s\n", s);
-		char* welcome_msg = "Choose one of the following options: \n1: list all people that have graduated in a certain course\n2: add new profile\n3: end activities\n4:list all skills from people that live in a certain city\n";
+		char* welcome_msg = "Choose one of the following options: \n1: list all people that have graduated in a certain course\n2: add new profile\n3: end activities\n4:list all skills from people that live in a certain city\n5: add new experience to a certain user\n6:show user's experience by providing their email\n7: list all info from all profiles\n8: show user's complete info by providing their email";
 		int len = strlen(welcome_msg);
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
@@ -417,7 +417,7 @@ int main(void)
 						}
 
 						response[cur] = '\0';
-						printf("%s\n", response);
+						// printf("%s\n", response);
 						len = strlen(response);
 						//send list of skills in response to client
 						if (send(new_fd, response, len, 0) == -1) {
@@ -549,6 +549,161 @@ int main(void)
 
                         system("cp aux.txt data.txt"); //system call to use bash commands (was simpler :)
                         //---END OF LOGIC LOGIC TO ADD EXP ON FILE DATA.TXT -------//
+                    }
+                    else if (buf[0] == '6') {
+
+                        fp = fopen("data.txt", "r");
+                        printf("Client chose to show user's experience by providing their email\n");
+						//so we must receive the desired email from the client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received desired email '%s'\n", buf);
+                        char response[1000];
+                        char aux[100];
+                        char email[200];
+                        char c1, c2;
+                        int cur_ind = 0;
+
+                        while (fscanf(fp, "%s", aux) != EOF) {
+
+                           if (strcmp(aux, "Email:") == 0) {
+                               int i = 0;
+                               char next;
+                               fscanf(fp, "%c", &next); //get preceding blank space
+                               fscanf(fp, "%c", &next); //this gets first char
+                               while (next != '\n') {
+                                   email[i++] = next;
+                                   fscanf(fp, "%c", &next);
+                               }
+                               email[i-1] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
+                               if (strcmp(email, buf) == 0) {
+                                   while (fscanf(fp, "%s", aux) != EOF) {
+                                       if (strcmp(aux, "Experiência:") == 0) {
+                                           while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
+
+                                               if ((c1 == '\n' && c2 == '\n') || (c1 == '\n' && c2 == 'E')) {
+                                                   goto respond_to_client;
+                                               }
+                                               else {
+                                                   response[cur_ind++] = c1;
+                                                   response[cur_ind++] = c2;
+                                               }
+
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+
+                       }
+                       respond_to_client:
+                       response[cur_ind++] = '\0';
+
+                       len = strlen(response);
+                       //send list of skills in response to client
+                       if (send(new_fd, response, len, 0) == -1) {
+                           perror("send");
+                       }
+
+                       fclose(fp);
+
+                    }
+                    else if (buf[0] == '7') {
+                        //client chose to list all info from all profiles
+                        //so basically send to client whole data.txt file
+                        fp = fopen("data.txt", "r");
+                        char response[50000];
+                        char next;
+                        int cur_ind = 0;
+                        while(fscanf(fp, "%c", &next) != EOF) {
+                            response[cur_ind++] = next;
+                        }
+                        response[cur_ind] = '\0';
+                        len = strlen(response);
+                        //send list of skills in response to client
+                        if (send(new_fd, response, len, 0) == -1) {
+                            perror("send");
+                        }
+
+                        fclose(fp);
+
+                    }
+                    else if (buf[0] == '8') {
+                        fp = fopen("data.txt", "r");
+                        printf("Client chose to show user's whole info by providing their email\n");
+						//so we must receive the desired email from the client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received desired email '%s'\n", buf);
+                        char response[2000];
+                        int cur_ind = 0;
+                        char aux[100];
+                        char email[200];
+                        char c1, c2;
+
+                        while (fscanf(fp, "%s", aux) != EOF) {
+                           // response[0] = '\0'; //resetting reponse
+                           if (strcmp(aux, "Email:") == 0) {
+                               cur_ind = 0;
+                               response[cur_ind++] = 'E';
+                               response[cur_ind++] = 'm';
+                               response[cur_ind++] = 'a';
+                               response[cur_ind++] = 'i';
+                               response[cur_ind++] = 'l';
+                               response[cur_ind++] = ':';
+                               // response[cur_ind++] = ' ';
+                               int i = 0;
+                               char next;
+                               fscanf(fp, "%c", &next); //get preceding blank space
+                               response[cur_ind++] = next;
+
+                               fscanf(fp, "%c", &next); //this gets first char
+                               response[cur_ind++] = next;
+
+                               while (next != '\n') {
+                                   email[i++] = next;
+                                   fscanf(fp, "%c", &next);
+                                   response[cur_ind++] = next;
+
+                               }
+                               email[i-1] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
+                               if (strcmp(email, buf) == 0) {
+                                   while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
+
+                                       if ((c1 == '\n' && c2 == '\n') || (c1 == '\n' && c2 == 'E')) {
+                                           goto respond_to_client_8;
+                                       }
+                                       else {
+                                           response[cur_ind++] = c1;
+                                           response[cur_ind++] = c2;
+                                       }
+
+                                   }
+                               }
+                           }
+
+                       }
+                       respond_to_client_8:
+                       response[cur_ind++] = '\0';
+
+                       len = strlen(response);
+                       //send list of skills in response to client
+                       if (send(new_fd, response, len, 0) == -1) {
+                           perror("send");
+                       }
+
+                       fclose(fp);
+
                     }
 				}
 				else {
