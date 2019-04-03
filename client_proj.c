@@ -270,6 +270,47 @@ int main(int argc, char *argv[])
 			printf("\nclient: received the following skills:\n");
 			printf("%s\n", buf);
 		}
+        else if (choice == '5') {
+            //user decided to add new experience to a certain person (by name)
+            int i;
+			char next;
+			printf("Enter desired name: \n");
+			/****get desired name from stdin****/
+			i = 0;
+			scanf("%c", &next); //this gets annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired course to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+            printf("Enter desired experience: \n");
+			/****get desired name from stdin****/
+			i = 0;
+			// scanf("%c", &next); //this gets annoying newline
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+			//send desired course to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+            //client does not need to receive any response from user
+
+
+        }
 
 	}
 

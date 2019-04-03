@@ -426,6 +426,130 @@ int main(void)
 
 						fclose(fp);
 					}
+                    else if (buf[0] == '5') {
+                        //client chose to add new experience to certain user
+                        //we must receive the user and the experience
+                        char user[200];
+                        char experience[700];
+
+                        //receive user from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received user '%s'\n",buf);
+                        strcpy(user, buf);
+
+                        //receive new experience from client
+						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received experience '%s'\n",buf);
+                        strcpy(experience, buf);
+
+
+
+
+                        //-----------LOGIC TO ADD EXP ON FILE DATA.TXT-------------//
+                        FILE* new_fp;
+                        /***search for names that have desired course on file***/
+                        fp = fopen ("data.txt", "r"); //open file in read mode
+                        new_fp = fopen("aux.txt", "w"); //open aux file in write mode
+
+                        char aux[100];
+                        char name[500];
+
+                        int correct_name = 0;
+                        while (fscanf(fp, "%s", aux) != EOF) {
+                            // fprintf(new_fp, "%s", aux);
+                            if (strcmp(aux, "Email:") == 0)
+                                fprintf(new_fp, "\n\n%s ", aux);
+
+                            else if (strcmp(aux, "Nome") == 0)
+                                fprintf(new_fp, "\n%s ", aux);
+
+                            else if (strcmp(aux, "Residência:") == 0)
+                                fprintf(new_fp, "%s ", aux);
+
+                            else if (strcmp(aux, "Formação") == 0)
+                                fprintf(new_fp, "\n%s ", aux);
+
+                            else if (strcmp(aux, "Acadêmica:") == 0)
+                                fprintf(new_fp, "%s ", aux);
+
+                            else if (strcmp(aux, "Habilidades:") == 0)
+                                fprintf(new_fp, "\n%s ", aux);
+
+                            else if (strcmp(aux, "Completo:") == 0) {
+                                fprintf(new_fp, "%s", aux);
+                                correct_name = 0;
+                                int i = 0;
+                                char next;
+                                fscanf(fp, "%c", &next); //get preceding blank space
+                                fprintf(new_fp, "%c", next);
+                                fscanf(fp, "%c", &next); //this gets first char
+                                fprintf(new_fp, "%c", next);
+                                while (next != '\n') {
+                                    name[i++] = next;
+                                    fscanf(fp, "%c", &next);
+                                    fprintf(new_fp, "%c", next);
+                                }
+                                name[i] = '\0';
+
+                                if (strcmp(name, user) == 0) {
+                                    correct_name = 1;
+                                }
+
+                            }
+                            else if (correct_name && strcmp(aux, "Experiência:") == 0) {
+
+                                fprintf(new_fp, "\n%s", aux);
+
+                                char c1, c2;
+                                int cur_num = 0;
+                                while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
+
+                                    if (c1 == '\n' && c2 == '\n') {
+                                        fprintf(new_fp, "\n\t\t\t (%d) %s\n", ++cur_num, experience);
+                                        break;
+                                    }
+                                    else if ((c1 == '('  && c2 >= 48 && c2 <= 57) || (c2 == ')' && c1 >= 48 && c2 <= 57)) {
+                                        cur_num++;
+                                        fprintf(new_fp, "%c%c", c1, c2);
+                                    }
+                                    else {
+                                        fprintf(new_fp, "%c%c", c1, c2);
+                                    }
+
+                                }
+                            }
+                            else if (strcmp(aux, "Experiência:") == 0) {
+                                fprintf(new_fp, "\n%s ", aux);
+                            }
+                            else {
+                                fprintf(new_fp, "%s ", aux);
+                            }
+                        }
+
+                        //we must continue copying stuff from old file to new file
+                        char next;
+                        while (fscanf(fp, "%c", &next) != EOF) {
+                            fprintf(new_fp, "%c", next);
+                        }
+
+                        fclose(fp);
+                        fclose(new_fp);
+
+                        system("cp aux.txt data.txt"); //system call to use bash commands (was simpler :)
+                        //---END OF LOGIC LOGIC TO ADD EXP ON FILE DATA.TXT -------//
+                    }
 				}
 				else {
 					// printf("invalid client input\n");

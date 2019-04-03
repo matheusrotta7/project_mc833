@@ -14,9 +14,6 @@ int main() {
     new_fp = fopen("aux.txt", "w"); //open aux file in write mode
 
     char aux[100];
-    char matches[20][200];
-    int num_of_matches = 0;
-    char experience[500];
     char name[500];
 
     int correct_name = 0;
@@ -41,7 +38,7 @@ int main() {
             fprintf(new_fp, "\n%s ", aux);
 
         else if (strcmp(aux, "Completo:") == 0) {
-            fprintf(new_fp, "%s ", aux);
+            fprintf(new_fp, "%s", aux);
             correct_name = 0;
             int i = 0;
             char next;
@@ -62,39 +59,35 @@ int main() {
 
         }
         else if (correct_name && strcmp(aux, "Experiência:") == 0) {
-            // int i = 0;
-            // char next;
-            // fscanf(fp, "%c", &next); ////get preceding blank space
-            // fscanf(fp, "%c", &next); //this gets first char
-            // while (next != '\n') {
-            //     experience[i++] = next;
-            //     fscanf(fp, "%c", &next);
-            // }
-            // experience[i] = '\0';
-            while (fscanf(fp, "%s", aux) != EOF) {
-                fprintf(new_fp, "%s", aux);
 
-                if (strcmp(aux, "(1)") == 0) {
-                    char next;
-                    while (fscanf(fp, "%c", &next) != EOF) {
-                        if (next != '\n')
-                            fprintf(new_fp, "%c", next);
+            fprintf(new_fp, "\n%s", aux);
 
-                        if (next == '\n') {
-                            fprintf(new_fp, "Essa é a nova experiência do GABRIEL\n\n");
-                            goto end;
-                        }
-                    }
+            char c1, c2;
+            int cur_num = 0;
+            while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
+
+                if (c1 == '\n' && c2 == '\n') {
+                    fprintf(new_fp, "\n\t\t\t (%d) Essa é a nova experiência do GABRIE\n", ++cur_num);
+                    break;
                 }
+                else if ((c1 == '('  && c2 >= 48 && c2 <= 57) || (c2 == ')' && c1 >= 48 && c2 <= 57)) {
+                    cur_num++;
+                    fprintf(new_fp, "%c%c", c1, c2);
+                }
+                else {
+                    fprintf(new_fp, "%c%c", c1, c2);
+                }
+
             }
+        }
+        else if (strcmp(aux, "Experiência:") == 0) {
+            fprintf(new_fp, "\n%s ", aux);
         }
         else {
             fprintf(new_fp, "%s ", aux);
         }
     }
-    int abc;
-    end:
-    abc = 42;
+
     //we must continue copying stuff from old file to new file
     char next;
     while (fscanf(fp, "%c", &next) != EOF) {
