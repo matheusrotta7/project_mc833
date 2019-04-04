@@ -1,0 +1,61 @@
+
+
+Email: matheusrotta7@gmail.com 
+Nome Completo: Matheus Rotta Alves
+Residência: Campinas 
+Formação Acadêmica: Engenharia da Computação (AA) 
+Habilidades: Machine Learning, Computer Security 
+Experiência: (1) Estágio de I.C. em Cepetro na área de ML (2) Estágio na google trabalhando com o jogo do dinossauro 
+
+Email: gps_016@gmail.com 
+Nome Completo: Gabriel Pellegrino da Silva
+Residência: Campinas 
+Formação Acadêmica: Engenharia da Computação (AA) 
+Habilidades: HPC, Algoritmos 
+Experiência: (1) Estágio na Semantix em ML 
+			 (2) Estágio em HPC no CEPETRO
+
+
+Email: roger@unicamp.br 
+Nome Completo: roger roger
+Residência: sjc 
+Formação Acadêmica: Letras 
+Habilidades: Sonetista, Tradução Juramentada, Romancista, Linguística 
+Experiência: (1) Estágio no MPF trabalhando com tradução juramentada (2) Estágio na pqp mlk 
+
+Email: carlos@null 
+Nome Completo: carlos almeida
+Residência: itu 
+Formação Acadêmica: Engenharia Elétrica 
+Habilidades: VHDL, Projetista de Fontes, Sis 
+Experiência: (1) Estágio na Eldorado trabalhando com Processamento de Sinais 
+
+Email: 
+Nome Completo:
+Residência:
+
+Formação Acadêmica: 
+Habilidades: 
+Experiência: (1) 
+
+Email: kiki@gmail.com 
+Nome Completo: Alessandra Ayumi Simasaki
+Residência: Pirassununga 
+Formação Acadêmica: Medicina Veterinária 
+Habilidades: Testes de qualidade com leite, Diagnósticos de influenza, experiência na área de cultivo celular 
+Experiência: (1) Estágio no IB Unicamp virologia animal (2) rabalhou como pesquisadora na empresa JBS na área de melhoramento genético (3) Trabalhou como Médica Veterinária na clínica Stevenson, onde virou sócia majoritária 
+
+Email: 127.0.0.1 
+Nome Completo:
+127.0.0.1 Residência: 127.0.0.1
+
+Formação Acadêmica: 127.0.0.1 
+Habilidades: 127.0.0.1 
+Experiência: (1) 127.0.0.1 
+
+Email: seiji@harvard.edu 
+Nome Completo: Rodrigo Seiji Piubeli Hirao
+Residência: Campinas 
+Formação Acadêmica: Engenharia da Computação (AX) 
+Habilidades: Web Development, beauty, Otaku-sama, melhor que o barney, etc. 
+Experiência: (1) Software Developer em Clube da Entrega 
