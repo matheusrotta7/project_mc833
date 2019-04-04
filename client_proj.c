@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
 			printf("%s\n", buf);
         }
         else if (choice == '7') {
-            //now client must receive answer from server:
+            //now client must receive all info from server:
 			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 			    perror("recv");
 			    exit(1);
@@ -355,6 +355,48 @@ int main(int argc, char *argv[])
 
 			printf("\nclient: received this info from all profiles:\n");
 			printf("%s\n", buf);
+
+            if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+			    perror("recv");
+			    exit(1);
+			}
+
+            // printf("\n\n%c", buf[0]);
+            int num_of_it = (int) buf[0];
+            num_of_it -= 48;
+            // printf("num_of_it on client: %d\n", num_of_it);
+            int i;
+            for (i = 0; i < num_of_it; i++) {
+                //first get filename
+                if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+    			    perror("recv");
+    			    exit(1);
+    			}
+                buf[numbytes] = '\0';
+                printf("%s\n", buf);
+
+                //then start logic to receive jpg:
+                //Read Picture Size
+                printf("Reading Picture Size\n");
+                size_t size;
+                read(sockfd, &size, sizeof(int));
+                printf("size is : %lu\n", size);
+
+                //Read Picture Byte Array
+                printf("Reading Picture Byte Array\n");
+                char* p_array = malloc(size);
+                read(sockfd, p_array, size);
+
+                //Convert it Back into Picture
+                printf("Converting Byte Array to Picture\n");
+                // FILE *image;
+                FILE* fp = fopen(buf, "w");
+                // image = fopen("c1.png", "w");
+                fwrite(p_array, 1, sizeof(p_array), fp);
+                fclose(fp);
+                free(p_array);
+
+            }
         }
         else if (choice == '8') {
             //user chose to show user's whole info by providing their email

@@ -30,8 +30,8 @@ int main() {
                email[i++] = next;
                fscanf(fp, "%c", &next);
            }
-           email[i-1] = '\0';
-           if (strcmp(email, "matheusrotta7@gmail.com") == 0) {
+           email[i] = '\0';
+           if (strcmp(email, "gps_016@gmail.com") == 0) {
                while (fscanf(fp, "%s", aux) != EOF) {
                    if (strcmp(aux, "Experiência:") == 0) {
                        while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {

@@ -580,7 +580,7 @@ int main(void)
                                    email[i++] = next;
                                    fscanf(fp, "%c", &next);
                                }
-                               email[i-1] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
+                               email[i] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
                                if (strcmp(email, buf) == 0) {
                                    while (fscanf(fp, "%s", aux) != EOF) {
                                        if (strcmp(aux, "Experiência:") == 0) {
@@ -620,17 +620,74 @@ int main(void)
                         char response[50000];
                         char next;
                         int cur_ind = 0;
-                        while(fscanf(fp, "%c", &next) != EOF) {
+
+                        char aux[200], str[200];
+                        char jpgs[10][200];
+                        int cur_str_ind = 0;
+                        while(fscanf(fp, "%s", aux) != EOF) {
+                            if (strcmp(aux, "Foto:") == 0) {
+
+                                fscanf(fp, "%s", str);
+                                strcpy(jpgs[cur_str_ind++], str);
+                                printf("%s\n", jpgs[cur_str_ind-1]);
+                            }
+                        }
+
+                        FILE* fp1 = fopen("data.txt", "r");
+
+                        while(fscanf(fp1, "%c", &next) != EOF) {
                             response[cur_ind++] = next;
                         }
                         response[cur_ind] = '\0';
                         len = strlen(response);
-                        //send list of skills in response to client
+                        //send all info in response to client
                         if (send(new_fd, response, len, 0) == -1) {
                             perror("send");
                         }
 
+                        char c = (char) (cur_str_ind + 48);
+                        printf("num_of_it will be sent as %c\n", c);
+                        response[0] = c;
+                        response[1] = '\0';
+                        if (send(new_fd, response, len, 0) == -1) {
+                            perror("send");
+                        }
+                        int k;
+                        for (k = 0; k < cur_str_ind; k++) {
+
+                            //first send file name
+                            len = strlen(jpgs[k]);
+                            if (send(new_fd, jpgs[k], len, 0) == -1) {
+                                perror("send");
+                            }
+
+                            //then start send jpg logic
+                            fp = fopen(jpgs[k], "r");
+                                //Get Picture Size
+                            printf("Getting Picture Size\n");
+                            // FILE *picture;
+                            // picture = fopen(argv[1], "r");
+                            int size;
+                            fseek(fp, 0, SEEK_END);
+                            size = ftell(fp);
+                            fseek(fp, 0, SEEK_SET);
+
+                            //Send Picture Size
+                            printf("Sending Picture Size\n");
+                            write(new_fd, &size, sizeof(size));
+
+                            //Send Picture as Byte Array
+                            printf("Sending Picture as Byte Array\n");
+                            char send_buffer[size];
+                            while(!feof(fp)) {
+                                fread(send_buffer, 1, sizeof(send_buffer), fp);
+                                write(new_fd, send_buffer, sizeof(send_buffer));
+                                bzero(send_buffer, sizeof(send_buffer));
+                            }
+                        }
+
                         fclose(fp);
+                        fclose(fp1);
 
                     }
                     else if (buf[0] == '8') {
@@ -676,7 +733,7 @@ int main(void)
                                    response[cur_ind++] = next;
 
                                }
-                               email[i-1] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
+                               email[i] = '\0'; //I put -1 because there was a space char after the email, causing an off by one mistake
                                if (strcmp(email, buf) == 0) {
                                    while (fscanf(fp, "%c%c", &c1, &c2) != EOF) {
 
