@@ -79,39 +79,35 @@ int main(int argc, char *argv[])
 
 	freeaddrinfo(servinfo); // all done with this structure
 
-	// if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	//     perror("recv");
-	//     exit(1);
-	// }
-    //
-	// buf[numbytes] = '\0';
-    //
-	// printf("client: received '%s'\n",buf);
-
-    FILE* fp = fopen("gabriel.jpg", "r");
-        //Get Picture Size
-    printf("Getting Picture Size\n");
-    // FILE *picture;
-    // picture = fopen(argv[1], "r");
-    int size;
-    fseek(fp, 0, SEEK_END);
-    size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    //Send Picture Size
-    printf("Sending Picture Size\n");
-    write(sockfd, &size, sizeof(size));
-
-    //Send Picture as Byte Array
-    printf("Sending Picture as Byte Array\n");
-    char send_buffer[size];
-    while(!feof(fp)) {
-        fread(send_buffer, 1, sizeof(send_buffer), fp);
-        write(sockfd, send_buffer, sizeof(send_buffer));
-        bzero(send_buffer, sizeof(send_buffer));
+    FILE* fp;
+    fp = fopen("client_gabriel.jpg", "w");
+    //receive num_of_it
+    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+        perror("recv");
+        exit(1);
     }
 
+    buf[numbytes] = '\0';
+    int num_of_it;
+    sscanf(buf, "%d", &num_of_it);
+    int k;
 
+    for (k = 0; k < num_of_it; k++) {
+        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+            perror("recv");
+            exit(1);
+        }
+
+        buf[numbytes] = '\0';
+        printf("%s\n", buf);
+        int l;
+        int len = strlen(buf);
+        for (int l = 0; l < len; l++) {
+            fprintf(fp, "%c", buf[l]);
+        }
+    }
+
+    fclose(fp);
 	close(sockfd);
 
 	return 0;

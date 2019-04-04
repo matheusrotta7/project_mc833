@@ -19,6 +19,7 @@
 
 #define MAXDATASIZE 100000 // max number of bytes we can get at once
 #define PICSIZE 100000
+#define PICBUFFER 10000 //size of the max chunk of data that is part of whole pic to be sent
 
 
 #define BACKLOG 10	 // how many pending connections queue will hold
@@ -127,36 +128,49 @@ int main(void)
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
-			// if (send(new_fd, "Hello, world!", 13, 0) == -1)
-			// 	perror("send");
+
+            FILE* fp = fopen("gabriel.jpg", "r");
+            char response[PICBUFFER];
+            int cur_ind = 0;
+            int j;
+            int k;
+            int len;
+            char next;
+
+            //we must know how many iterations will be made and send it to client
+            //let's measure file size and then divide it by PICBUFFER
+            size_t file_size = 0;
+            while (fscanf(fp, "%c", &next) != EOF) {
+                file_size++;
+            }
+
+            int num_of_it = file_size/PICBUFFER + ((file_size%PICBUFFER) != 0); //formulinha fofinha :) por no relatório uma breve explicação pq ficou legal
+            response[0] = (char) (num_of_it+48);
+            response[1] = '\0';
+            len = strlen(response);
+            //send num_of_it to client
+            if (send(new_fd, response, len, 0) == -1) {
+                perror("send");
+            }
 
 
-
-            //Read Picture Size
-            printf("Reading Picture Size\n");
-            int size;
-            read(new_fd, &size, sizeof(int));
-
-            //Read Picture Byte Array
-            printf("Reading Picture Byte Array\n");
-            char p_array[size];
-            read(new_fd, p_array, size);
-
-            //Convert it Back into Picture
-            printf("Converting Byte Array to Picture\n");
-            // FILE *image;
-            FILE* fp = fopen("gabriel2.jpg", "w");
-            // image = fopen("c1.png", "w");
-            fwrite(p_array, 1, sizeof(p_array), fp);
-            fclose(fp);
-
-
-            // int len = strlen(buf);
-            //
-            // int i;
-            // for (i = 0; i < len; i++) {
-            //     fprintf(fp, "%c", buf[i]);
-            // }
+            for (j = 0; j < num_of_it; j++) {
+                cur_ind = 0;
+                for (k = 0; k < PICBUFFER; k++) {
+                    if (fscanf(fp, "%c", &next) == EOF) {
+                        break;
+                    }
+                    else {
+                        response[cur_ind++] = next;
+                    }
+                }
+                response[cur_ind++] = '\0';
+                len = strlen(response);
+                //send 10000 size chunk
+                if (send(new_fd, response, len, 0) == -1) {
+                    perror("send");
+                }
+            }
 
 
 
