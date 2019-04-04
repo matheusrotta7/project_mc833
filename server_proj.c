@@ -676,12 +676,14 @@ int main(void)
                             printf("Sending Picture Size\n");
                             write(new_fd, &size, sizeof(size));
 
+
                             //Send Picture as Byte Array
                             printf("Sending Picture as Byte Array\n");
                             char send_buffer[size];
                             while(!feof(fp)) {
                                 fread(send_buffer, 1, sizeof(send_buffer), fp);
                                 write(new_fd, send_buffer, sizeof(send_buffer));
+                                // system("sleep 1");
                                 bzero(send_buffer, sizeof(send_buffer));
                             }
                         }

@@ -90,8 +90,9 @@ int main(int argc, char *argv[])
 	while (1) {
 		char choice;
 		scanf("%c", &choice);
-		char response[1];
+		char response[2];
 		response[0] = choice;
+        response[1] = '\0'; //this is so necessary! Some compilers fix the lack of \0, some don't
 		int len = strlen(response);
 		if (send(sockfd, response, len, 0) == -1) {
 			perror("send");
@@ -374,6 +375,7 @@ int main(int argc, char *argv[])
     			}
                 buf[numbytes] = '\0';
                 printf("%s\n", buf);
+                buf[0] = '@';
 
                 //then start logic to receive jpg:
                 //Read Picture Size
