@@ -129,8 +129,8 @@ int main(void)
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
 
-            FILE* fp = fopen("gabriel.jpg", "r");
-            char response[PICBUFFER];
+            FILE* fp = fopen("gabriel.jpg", "rb");
+            char response[PICBUFFER+1];
             int cur_ind = 0;
             int j;
             int k;
@@ -139,12 +139,20 @@ int main(void)
 
             //we must know how many iterations will be made and send it to client
             //let's measure file size and then divide it by PICBUFFER
-            size_t file_size = 0;
-            while (fscanf(fp, "%c", &next) != EOF) {
-                file_size++;
-            }
+            // size_t file_size = 0;
+            // while (fscanf(fp, "%c", &next) != EOF) {
+            //     file_size++;
+            // }
+
+            // obtain file size:
+            size_t file_size;
+            fseek (fp , 0 , SEEK_END);
+            file_size = ftell (fp);
+            rewind (fp);
+
 
             int num_of_it = file_size/PICBUFFER + ((file_size%PICBUFFER) != 0); //formulinha fofinha :) por no relatório uma breve explicação pq ficou legal
+            printf("num_of_it: %d\n", num_of_it);
             response[0] = (char) (num_of_it+48);
             response[1] = '\0';
             len = strlen(response);
@@ -155,21 +163,28 @@ int main(void)
 
 
             for (j = 0; j < num_of_it; j++) {
-                cur_ind = 0;
-                for (k = 0; k < PICBUFFER; k++) {
-                    if (fscanf(fp, "%c", &next) == EOF) {
-                        break;
-                    }
-                    else {
-                        response[cur_ind++] = next;
-                    }
+                printf("iteration no.: %d\n", j);
+                // cur_ind = 0;
+                size_t result;
+                result = fread (response, 1, PICBUFFER, fp);
+                if (result != PICBUFFER) {
+
                 }
-                response[cur_ind++] = '\0';
-                len = strlen(response);
+                else {
+
+                }
+                printf("result size: %lu\n", result);
+
+                // response[cur_ind++] = '\0';
+                // printf("response %d: %s\n", j, response);
+                // len = strlen(response);
+
                 //send 10000 size chunk
-                if (send(new_fd, response, len, 0) == -1) {
+                system("sleep 0.5");
+                if (send(new_fd, response, result, 0) == -1) {
                     perror("send");
                 }
+
             }
 
 

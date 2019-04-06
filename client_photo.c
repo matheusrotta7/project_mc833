@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
     int num_of_it;
     sscanf(buf, "%d", &num_of_it);
     int k;
+    printf("num_of_it on client: %d\n", num_of_it);
 
     for (k = 0; k < num_of_it; k++) {
         if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
@@ -99,12 +100,10 @@ int main(int argc, char *argv[])
         }
 
         buf[numbytes] = '\0';
-        printf("%s\n", buf);
+        printf("numbytes in iteration %d: %d\n", k, numbytes);
         int l;
-        int len = strlen(buf);
-        for (int l = 0; l < len; l++) {
-            fprintf(fp, "%c", buf[l]);
-        }
+        // int len = strlen(buf);
+        fwrite(buf, 1, numbytes, fp);
     }
 
     fclose(fp);
