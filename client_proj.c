@@ -16,7 +16,11 @@
 
 #define PORT "3490" // the port client will be connecting to
 
-#define MAXDATASIZE 2000 // max number of bytes we can get at once
+
+#define PICBUFFER 10000 //size of the max chunk of data that is part of whole pic to be sent
+
+
+#define MAXDATASIZE 10000 // max number of bytes we can get at once
 #define MAX_NAME_SIZE 500
 
 // get sockaddr, IPv4 or IPv6:
@@ -32,7 +36,7 @@ void *get_in_addr(struct sockaddr *sa)
 int main(int argc, char *argv[])
 {
 	int sockfd, numbytes;
-	char buf[MAXDATASIZE];
+	char buf[MAXDATASIZE+1];
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	char s[INET6_ADDRSTRLEN];
@@ -357,46 +361,62 @@ int main(int argc, char *argv[])
 			printf("\nclient: received this info from all profiles:\n");
 			printf("%s\n", buf);
 
+            //receive num_of_photos
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 			    perror("recv");
 			    exit(1);
 			}
-
+            buf[numbytes] = '\0';
             // printf("\n\n%c", buf[0]);
-            int num_of_it = (int) buf[0];
-            num_of_it -= 48;
-            // printf("num_of_it on client: %d\n", num_of_it);
+            int num_of_photos;
+            // num_of_photos -= 48;
+            sscanf(buf, "%d", &num_of_photos);
+            printf("num_of_photos on client: %d\n", num_of_photos);
             int i;
-            for (i = 0; i < num_of_it; i++) {
+            for (i = 0; i < num_of_photos; i++) {
                 //first get filename
                 if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
     			    perror("recv");
     			    exit(1);
     			}
                 buf[numbytes] = '\0';
-                printf("%s\n", buf);
+                printf("NUMBYTES RECEIVED FOR FILENAME: %d\n", numbytes);
+                // printf("%s\n", buf);
                 buf[0] = '@';
 
+                printf("NAME OF CURRENT FILE: %s\n", buf);
+
                 //then start logic to receive jpg:
-                //Read Picture Size
-                printf("Reading Picture Size\n");
-                size_t size;
-                read(sockfd, &size, sizeof(int));
-                printf("size is : %lu\n", size);
+                FILE* fp;
+                fp = fopen(buf, "wb");
 
-                //Read Picture Byte Array
-                printf("Reading Picture Byte Array\n");
-                char* p_array = malloc(size);
-                read(sockfd, p_array, size);
+                //receive num_of_it for this current photo
+                if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+                    perror("recv");
+                    exit(1);
+                }
 
-                //Convert it Back into Picture
-                printf("Converting Byte Array to Picture\n");
-                // FILE *image;
-                FILE* fp = fopen(buf, "w");
-                // image = fopen("c1.png", "w");
-                fwrite(p_array, 1, sizeof(p_array), fp);
+                buf[numbytes] = '\0';
+                printf("BUFFER OF NUM_OF_IT RECEIVED FROM SERVER %s\n", buf);
+                int num_of_it;
+                sscanf(buf, "%d", &num_of_it);
+                int k;
+                printf("num_of_it on client: %d\n", num_of_it);
+
+                for (k = 0; k < num_of_it; k++) {
+                    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+                        perror("recv");
+                        exit(1);
+                    }
+
+                    buf[numbytes] = '\0';
+                    printf("numbytes in iteration %d: %d\n", k, numbytes);
+                    int l;
+                    // int len = strlen(buf);
+                    fwrite(buf, 1, numbytes, fp);
+                }
                 fclose(fp);
-                free(p_array);
+
 
             }
         }

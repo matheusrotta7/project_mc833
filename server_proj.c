@@ -19,9 +19,12 @@
 
 #define BACKLOG 10	 // how many pending connections queue will hold
 
-#define MAXDATASIZE 2000 // max number of bytes we can get at once
+#define MAXDATASIZE 10000 // max number of bytes we can get at once
 
 #define MAX_FILE_SIZE 10000 //max size of data.txt file
+
+#define PICBUFFER 5000 //size of the max chunk of data that is part of whole pic to be sent
+
 
 // typedef struct userinfo {
 //
@@ -615,7 +618,7 @@ int main(void)
                     }
                     else if (buf[0] == '7') {
                         //client chose to list all info from all profiles
-                        //so basically send to client whole data.txt file
+                        //so basically send to client whole data.txt file and the jpgs
                         fp = fopen("data.txt", "r");
                         char response[50000];
                         char next;
@@ -629,7 +632,7 @@ int main(void)
 
                                 fscanf(fp, "%s", str);
                                 strcpy(jpgs[cur_str_ind++], str);
-                                printf("%s\n", jpgs[cur_str_ind-1]);
+                                // printf("%s\n", jpgs[cur_str_ind-1]);
                             }
                         }
 
@@ -644,47 +647,85 @@ int main(void)
                         if (send(new_fd, response, len, 0) == -1) {
                             perror("send");
                         }
+                        system("sleep 0.1");
 
-                        char c = (char) (cur_str_ind + 48);
-                        printf("num_of_it will be sent as %c\n", c);
-                        response[0] = c;
-                        response[1] = '\0';
+
+                        // char c = (char) (cur_str_ind + 48);
+                        // printf("num_of_photos will be sent as %c\n", c);
+                        int num_of_photos = cur_str_ind;
+                        printf("NUM_OF_PHOTOS: %d\n", num_of_photos);
+                        sprintf(response, "%d", num_of_photos);
+                        // response[0] = c;
+                        // response[1] = '\0';
+                        //send num_of_photos
                         if (send(new_fd, response, len, 0) == -1) {
                             perror("send");
                         }
+                        system("sleep 0.1");
+
                         int k;
-                        for (k = 0; k < cur_str_ind; k++) {
+                        for (k = 0; k < num_of_photos; k++) {
+
+                            printf("NAME OF CURRENT FILE: %s\n", jpgs[k]);
 
                             //first send file name
                             len = strlen(jpgs[k]);
+                            printf("LEN OF FILE NAME%d\n", len);
+                            jpgs[k][len] = '\0';
                             if (send(new_fd, jpgs[k], len, 0) == -1) {
                                 perror("send");
                             }
-
-                            //then start send jpg logic
-                            fp = fopen(jpgs[k], "r");
-                                //Get Picture Size
-                            printf("Getting Picture Size\n");
-                            // FILE *picture;
-                            // picture = fopen(argv[1], "r");
-                            int size;
-                            fseek(fp, 0, SEEK_END);
-                            size = ftell(fp);
-                            fseek(fp, 0, SEEK_SET);
-
-                            //Send Picture Size
-                            printf("Sending Picture Size\n");
-                            write(new_fd, &size, sizeof(size));
+                            system("sleep 0.1");
 
 
-                            //Send Picture as Byte Array
-                            printf("Sending Picture as Byte Array\n");
-                            char send_buffer[size];
-                            while(!feof(fp)) {
-                                fread(send_buffer, 1, sizeof(send_buffer), fp);
-                                write(new_fd, send_buffer, sizeof(send_buffer));
-                                // system("sleep 1");
-                                bzero(send_buffer, sizeof(send_buffer));
+
+                            FILE* jpg_fp = fopen(jpgs[k], "rb");
+                            char response[PICBUFFER+1];
+                            int cur_ind = 0;
+                            int j;
+                            int k;
+                            int len;
+                            char next;
+
+                            // fp = fopen(jpgs[k], "r");
+
+                            // obtain file size:
+                            size_t file_size;
+                            fseek (jpg_fp , 0 , SEEK_END);
+                            file_size = ftell (jpg_fp);
+                            rewind (jpg_fp);
+
+
+                            int num_of_it = file_size/PICBUFFER + ((file_size%PICBUFFER) != 0); //formulinha fofinha :) por no relatório uma breve explicação pq ficou legal
+                            printf("NUM_OF_IT: %d\n", num_of_it);
+                            // response[0] = (char) (num_of_it+48);
+                            // response[1] = '\0';
+                            sprintf(response, "%d", num_of_it);
+                            printf("NUM_OF_IT (response): %s\n", response);
+
+                            len = strlen(response);
+                            //send num_of_it to client
+                            if (send(new_fd, response, len, 0) == -1) {
+                                perror("send");
+                            }
+                            system("sleep 0.1");
+
+
+
+                            for (j = 0; j < num_of_it; j++) {
+                                printf("iteration no.: %d\n", j);
+                                // cur_ind = 0;
+                                size_t result;
+                                result = fread (response, 1, PICBUFFER, jpg_fp);
+
+                                printf("result size: %lu\n", result);
+
+                                //send 10000 size chunk
+                                if (send(new_fd, response, result, 0) == -1) {
+                                    perror("send");
+                                }
+                                system("sleep 0.3");
+
                             }
                         }
 
@@ -704,7 +745,7 @@ int main(void)
 						buf[numbytes] = '\0';
 
 						printf("server: received desired email '%s'\n", buf);
-                        char response[2000];
+                        char response[PICBUFFER+1];
                         int cur_ind = 0;
                         char aux[100];
                         char email[200];

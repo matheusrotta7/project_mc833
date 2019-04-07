@@ -167,17 +167,8 @@ int main(void)
                 // cur_ind = 0;
                 size_t result;
                 result = fread (response, 1, PICBUFFER, fp);
-                if (result != PICBUFFER) {
-
-                }
-                else {
-
-                }
+            
                 printf("result size: %lu\n", result);
-
-                // response[cur_ind++] = '\0';
-                // printf("response %d: %s\n", j, response);
-                // len = strlen(response);
 
                 //send 10000 size chunk
                 system("sleep 0.5");
