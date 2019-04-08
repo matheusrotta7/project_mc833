@@ -18,6 +18,7 @@
 
 
 #define PICBUFFER 10000 //size of the max chunk of data that is part of whole pic to be sent
+#define PICBUFFER_SEND 5000 //size of the max chunk of data that is part of whole pic to be sent
 
 
 #define MAXDATASIZE 10000 // max number of bytes we can get at once
@@ -146,6 +147,81 @@ int main(int argc, char *argv[])
 			if (send(sockfd, buf, len, 0) == -1) {
 				perror("send");
 			}
+
+            //-----------photo logic------------------//
+            i = 0;
+			scanf("%c", &next); //this gets first char
+			while (next != '\n') {
+				buf[i++] = next;
+				scanf("%c", &next);
+			}
+			buf[i] = '\0';
+			/****************************/
+			len = strlen(buf);
+            printf("I AM SENDING THIS FILENAME: %s\n", buf);
+			//send photo filename to server
+			if (send(sockfd, buf, len, 0) == -1) {
+				perror("send");
+			}
+
+            /*now we have to send the actual file to server*/
+            //--------------begin send jpg logic:******/////
+            FILE* fp = fopen(buf, "rb");
+            char response[PICBUFFER_SEND+1];
+            int cur_ind = 0;
+            int j;
+            int k;
+            int len;
+            // char next;
+
+            //we must know how many iterations will be made and send it to client
+            //let's measure file size and then divide it by PICBUFFER
+            // size_t file_size = 0;
+            // while (fscanf(fp, "%c", &next) != EOF) {
+            //     file_size++;
+            // }
+
+            // obtain file size:
+            size_t file_size;
+            fseek (fp , 0 , SEEK_END);
+            file_size = ftell (fp);
+            rewind (fp);
+
+
+            int num_of_it = file_size/PICBUFFER_SEND + ((file_size%PICBUFFER_SEND) != 0); //formulinha fofinha :) por no relatório uma breve explicação pq ficou legal
+            printf("num_of_it: %d\n", num_of_it);
+            sprintf(response, "%d", num_of_it);
+            len = strlen(response);
+            //send num_of_it to client
+            if (send(sockfd, response, len, 0) == -1) {
+                perror("send");
+            }
+            system("sleep 0.3");
+
+
+
+            for (j = 0; j < num_of_it; j++) {
+                printf("iteration no.: %d\n", j);
+                // cur_ind = 0;
+                size_t result;
+                result = fread (response, 1, PICBUFFER_SEND, fp);
+
+                printf("result size: %lu\n", result);
+                printf("before send\n");
+
+                //send 10000 size chunk
+                if (send(sockfd, response, result, 0) == -1) {
+                    // perror("send");
+                }
+                system("sleep 0.5");
+                // printf("after send, before sleep\n");
+                // printf("after sleep\n");
+
+            }
+            fclose(fp);
+            //--------------end send jpg logic:********/////
+            //-------end of photo logic------------------//
+
 
 			/****get residence from stdin****/
 			i = 0;
@@ -382,7 +458,7 @@ int main(int argc, char *argv[])
                 buf[numbytes] = '\0';
                 printf("NUMBYTES RECEIVED FOR FILENAME: %d\n", numbytes);
                 // printf("%s\n", buf);
-                buf[0] = '@';
+                // buf[0] = '@';
 
                 printf("NAME OF CURRENT FILE: %s\n", buf);
 

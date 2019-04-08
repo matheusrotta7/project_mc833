@@ -278,15 +278,53 @@ int main(void)
 						printf("server: received name '%s'\n",buf);
 						fprintf(fp, "Nome Completo: %s\n", buf);
 
-						// //receive photo from client
-						// if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
-						//     perror("recv");
-						//     exit(1);
-						// }
-						//
-						// buf[numbytes] = '\0';
-						//
-						// printf("server: received '%s'\n",buf);
+						//receive photo filename from client
+                        if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+						    perror("recv");
+						    exit(1);
+						}
+
+						buf[numbytes] = '\0';
+
+						printf("server: received filename '%s'\n", buf);
+						fprintf(fp, "Foto: %s\n", buf);
+
+                        //-----begin logic to receive actual jpg file from client-----//
+                        FILE* jpg_fp;
+                        jpg_fp = fopen(buf, "wb");
+                        //receive num_of_it
+                        if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+                            perror("recv");
+                            exit(1);
+                        }
+
+                        buf[numbytes] = '\0';
+                        int num_of_it;
+                        sscanf(buf, "%d", &num_of_it);
+                        int k;
+                        printf("num_of_it on client: %d\n", num_of_it);
+
+                        for (k = 0; k < num_of_it; k++) {
+                            printf("before recv\n");
+
+                            if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
+                                perror("recv");
+                                exit(1);
+                            }
+                            printf("after recv\n");
+
+                            buf[numbytes] = '\0';
+                            printf("numbytes in iteration %d: %d\n", k, numbytes);
+                            int l;
+                            // int len = strlen(buf);
+                            // printf("before fwrite\n");
+                            // printf("NUMBYTES: ")
+                            fwrite(buf, 1, numbytes, jpg_fp);
+                            // printf("after fwrite\n");
+                        }
+
+                        fclose(jpg_fp);
+                        //------end  logic to receive actual jpg file from client-----//
 
 						//receive residence from client
 						if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
